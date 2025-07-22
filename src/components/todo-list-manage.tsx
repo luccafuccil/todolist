@@ -3,21 +3,25 @@
 import { trpc } from "@/utils/trpc";
 import { IndividualTodo } from "./individual-todo";
 import { useRouter } from "next/navigation";
+import { type Todo } from "@/types";
 
-export function TodoList() {
+interface TodoListProps {
+  initialTodos: Todo[];
+}
+
+export function TodoList({ initialTodos }: TodoListProps) {
   const router = useRouter();
   const utils = trpc.useUtils();
-  const { data: todos, isLoading } = trpc.todo.getAll.useQuery();
+
+  const { data: todos } = trpc.todo.getAll.useQuery(undefined, {
+    initialData: initialTodos,
+    staleTime: 0,
+    refetchOnMount: true,
+    refetchOnWindowFocus: false,
+    refetchOnReconnect: true,
+  });
 
   const invalidateTodos = () => utils.todo.getAll.invalidate();
-
-  if (isLoading) {
-    return (
-      <div className="text-center text-blue-900 font-bold text-2xl">
-        Loading...
-      </div>
-    );
-  }
 
   return (
     <div className="m-4 bg-white p-6 rounded-xl shadow-md">
@@ -26,9 +30,8 @@ export function TodoList() {
       <button className="main-btn mb-4" onClick={() => router.push("/add-new")}>
         Add new task
       </button>
-
       <ul>
-        {todos?.map((todo) => (
+        {[...(todos ?? [])].reverse().map((todo) => (
           <IndividualTodo
             key={todo.id}
             todo={todo}

@@ -124,7 +124,7 @@ export function IndividualTodo({ todo, onUpdate }: IndividualTodoProps) {
         open={showDeleteModal}
         onClose={handleDeleteModalClose}
         onUndo={handleUndoDelete}
-        title="Task has been deleted."
+        title="Task will be deleted."
       />
     </>
   );

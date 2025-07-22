@@ -52,7 +52,7 @@ const NewTodoForm: React.FC<NewTodoFormProps> = ({ onSubmit, initialData }) => {
         </label>
       </div>
       <button type="submit" className="main-btn">
-        Add To-do
+        Add Task
       </button>
     </form>
   );

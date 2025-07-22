@@ -1,20 +1,47 @@
 import { z } from "zod";
 import { router, publicProcedure } from "../trpc";
 
-let nextTodoId = 1;
-
-let todos: Array<{
+type Todo = {
   id: number;
   text: string;
   description?: string;
   completed: boolean;
   createdAt: Date;
   updatedAt?: Date;
-}> = [];
+};
+
+let nextTodoId = 1;
+let todos: Todo[] = [
+  {
+    id: nextTodoId++,
+    text: "Test task 1",
+    completed: false,
+    description: "This is a test task",
+    createdAt: new Date(),
+  },
+  {
+    id: nextTodoId++,
+    text: "Test task 2",
+    completed: false,
+    description: "This is a test task with a description",
+    createdAt: new Date(),
+  },
+  {
+    id: nextTodoId++,
+    text: "Test task 3",
+    completed: false,
+    description: "This is another test task",
+    createdAt: new Date(),
+  },
+];
 
 export const todoRouter = router({
   getAll: publicProcedure.query(() => {
-    return todos;
+    return todos.map((todo) => ({
+      ...todo,
+      createdAt: todo.createdAt.toISOString(),
+      updatedAt: todo.updatedAt?.toISOString(),
+    }));
   }),
 
   create: publicProcedure
@@ -24,9 +51,8 @@ export const todoRouter = router({
         description: z.string().optional(),
       })
     )
-
     .mutation(({ input }) => {
-      const newTodo = {
+      const newTodo: Todo = {
         id: nextTodoId++,
         text: input.text,
         description: input.description,
@@ -34,7 +60,11 @@ export const todoRouter = router({
         createdAt: new Date(),
       };
       todos.push(newTodo);
-      return newTodo;
+
+      return {
+        ...newTodo,
+        createdAt: newTodo.createdAt.toISOString(),
+      };
     }),
 
   edit: publicProcedure
@@ -57,10 +87,13 @@ export const todoRouter = router({
       if (input.description !== undefined) {
         todos[todoIndex].description = input.description;
       }
-
       todos[todoIndex].updatedAt = new Date();
 
-      return todos[todoIndex];
+      return {
+        ...todos[todoIndex],
+        createdAt: todos[todoIndex].createdAt.toISOString(),
+        updatedAt: todos[todoIndex].updatedAt?.toISOString(),
+      };
     }),
 
   toggle: publicProcedure
@@ -70,14 +103,21 @@ export const todoRouter = router({
       if (todo) {
         todo.completed = !todo.completed;
         todo.updatedAt = new Date();
+
+        return {
+          ...todo,
+          createdAt: todo.createdAt.toISOString(),
+          updatedAt: todo.updatedAt?.toISOString(),
+        };
       }
-      return todo;
+      return null;
     }),
 
   delete: publicProcedure
     .input(z.object({ id: z.number() }))
     .mutation(({ input }) => {
+      const initialLength = todos.length;
       todos = todos.filter((t) => t.id !== input.id);
-      return { success: true };
+      return { success: todos.length < initialLength };
     }),
 });
