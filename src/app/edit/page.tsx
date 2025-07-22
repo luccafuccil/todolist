@@ -23,20 +23,34 @@ export default function EditTodoPage() {
 
   const editTodo = trpc.todo.edit.useMutation({
     onSuccess: () => {
-      utils.todo.getAll.invalidate();
-      router.push("/");
+      try {
+        utils.todo.getAll.invalidate();
+        router.push("/");
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    },
+    onError: (error) => {
+      console.error("Task edit failed:", error.message);
     },
   });
 
   useEffect(() => {
-    if (todos && todoId) {
-      const todo = todos.find((t) => t.id === parseInt(todoId));
-      if (todo) {
-        setInitialData({
-          name: todo.text,
-          description: todo.description || "",
-        });
+    try {
+      if (todos && todoId) {
+        const todo = todos.find((t) => t.id === parseInt(todoId));
+        if (todo) {
+          setInitialData({
+            name: todo.name,
+            description: todo.description || "",
+          });
+        } else {
+          router.push("/");
+        }
       }
+    } catch (error) {
+      console.error("Error loading task data:", error);
+      router.push("/");
     }
   }, [todos, todoId]);
 
@@ -44,7 +58,7 @@ export default function EditTodoPage() {
     if (todoId) {
       editTodo.mutate({
         id: parseInt(todoId),
-        text: data.name,
+        name: data.name,
         description: data.description,
       });
     }

@@ -10,16 +10,30 @@ export default function AddNewPage() {
 
   const createTodo = trpc.todo.create.useMutation({
     onSuccess: () => {
-      utils.todo.getAll.invalidate();
-      router.push("/");
+      try {
+        utils.todo.getAll.invalidate();
+        router.push("/");
+      } catch (error) {
+        console.error("Error:", error);
+      }
+    },
+    onError: (error) => {
+      console.error("Task creation failed:", error.message);
     },
   });
 
-  const handleFormSubmit = (data: { name: string; description: string }) => {
-    createTodo.mutate({
-      text: data.name,
-      description: data.description,
-    });
+  const handleFormSubmit = async (data: {
+    name: string;
+    description: string;
+  }) => {
+    try {
+      await createTodo.mutateAsync({
+        name: data.name,
+        description: data.description,
+      });
+    } catch (error) {
+      console.error("Error:", error);
+    }
   };
 
   return (

@@ -13,7 +13,7 @@ export function TodoList({ initialTodos }: TodoListProps) {
   const router = useRouter();
   const utils = trpc.useUtils();
 
-  const { data: todos } = trpc.todo.getAll.useQuery(undefined, {
+  const { data: todos, error } = trpc.todo.getAll.useQuery(undefined, {
     initialData: initialTodos,
     staleTime: 0,
     refetchOnMount: true,
@@ -21,7 +21,24 @@ export function TodoList({ initialTodos }: TodoListProps) {
     refetchOnReconnect: true,
   });
 
-  const invalidateTodos = () => utils.todo.getAll.invalidate();
+  const invalidateTodos = async () => {
+    try {
+      await utils.todo.getAll.invalidate();
+    } catch (error: any) {
+      console.error("Failed to refresh tasks:", error);
+    }
+  };
+
+  if (error) {
+    console.error("Failed to load tasks:", error);
+    return (
+      <div className="m-4 bg-white p-6 rounded-xl shadow-md">
+        <h1 className="text-red-600">Error loading tasks!</h1>
+        <p className="text-gray-600">{error.message}</p>
+        <button onClick={() => window.location.reload()}>Retry</button>
+      </div>
+    );
+  }
 
   return (
     <div className="m-4 bg-white p-6 rounded-xl shadow-md">

@@ -37,14 +37,19 @@ export function IndividualTodo({ todo, onUpdate }: IndividualTodoProps) {
     onUpdate();
   };
 
-  const handleUndoDelete = () => {
-    if (deletedTodo) {
-      createTodo.mutate({
-        text: deletedTodo.text,
-        description: deletedTodo.description || undefined,
-      });
-      setShowDeleteModal(false);
-      setDeletedTodo(null);
+  const handleUndoDelete = async () => {
+    try {
+      if (deletedTodo) {
+        await createTodo.mutateAsync({
+          name: deletedTodo.name,
+          description: deletedTodo.description || undefined,
+        });
+        setShowDeleteModal(false);
+        setDeletedTodo(null);
+      }
+    } catch (error) {
+      console.error("Cannot undo delete:", error);
+      setShowDeleteModal(true);
     }
   };
 
@@ -69,7 +74,7 @@ export function IndividualTodo({ todo, onUpdate }: IndividualTodoProps) {
               }}
               className="font-medium text-xl text-gray-800 block"
             >
-              {todo.text}
+              {todo.name}
             </span>
 
             {todo.description && (

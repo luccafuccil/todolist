@@ -3,7 +3,7 @@ import { router, publicProcedure } from "../trpc";
 
 type Todo = {
   id: number;
-  text: string;
+  name: string;
   description?: string;
   completed: boolean;
   createdAt: Date;
@@ -14,21 +14,21 @@ let nextTodoId = 1;
 let todos: Todo[] = [
   {
     id: nextTodoId++,
-    text: "Test task 1",
+    name: "Test task 1",
     completed: false,
     description: "This is a test task",
     createdAt: new Date(),
   },
   {
     id: nextTodoId++,
-    text: "Test task 2",
+    name: "Test task 2",
     completed: false,
     description: "This is a test task with a description",
     createdAt: new Date(),
   },
   {
     id: nextTodoId++,
-    text: "Test task 3",
+    name: "Test task 3",
     completed: false,
     description: "This is another test task",
     createdAt: new Date(),
@@ -47,14 +47,32 @@ export const todoRouter = router({
   create: publicProcedure
     .input(
       z.object({
-        text: z.string().min(1).max(20),
+        name: z
+          .string()
+          .min(1, "Name is required")
+          .max(50, "Name cannot be longer than 50 characters"),
         description: z.string().optional(),
       })
     )
     .mutation(({ input }) => {
+      const existingTodo = todos.find(
+        (t) => t.name.toLowerCase().trim() === input.name.toLowerCase().trim()
+      );
+      if (existingTodo) {
+        throw new Error("You cannot have two tasks with the same name");
+      }
+
+      if (todos.length >= 1000) {
+        throw new Error("Maximum number of tasks reached");
+      }
+
+      if (input.name.trim() !== input.name) {
+        throw new Error("Task name cannot start or end with spaces");
+      }
+
       const newTodo: Todo = {
         id: nextTodoId++,
-        text: input.text,
+        name: input.name,
         description: input.description,
         completed: false,
         createdAt: new Date(),
@@ -71,18 +89,31 @@ export const todoRouter = router({
     .input(
       z.object({
         id: z.number(),
-        text: z.string().min(1).optional(),
+        name: z.string().min(1).optional(),
         description: z.string().optional(),
       })
     )
     .mutation(({ input }) => {
       const todoIndex = todos.findIndex((t) => t.id === input.id);
+
       if (todoIndex === -1) {
-        throw new Error("To-do not found");
+        throw new Error("Task could not be found");
+      }
+      const todo = todos[todoIndex];
+      if (input.name && input.name !== todo.name) {
+        const duplicate = todos.find(
+          (t) =>
+            t.id !== input.id &&
+            input.name &&
+            t.name.toLowerCase() === input.name.toLowerCase()
+        );
+        if (duplicate) {
+          throw new Error("You cannot have two tasks with the same name");
+        }
       }
 
-      if (input.text !== undefined) {
-        todos[todoIndex].text = input.text;
+      if (input.name !== undefined) {
+        todos[todoIndex].name = input.name;
       }
       if (input.description !== undefined) {
         todos[todoIndex].description = input.description;
@@ -116,8 +147,14 @@ export const todoRouter = router({
   delete: publicProcedure
     .input(z.object({ id: z.number() }))
     .mutation(({ input }) => {
+      const todoExists = todos.find((t) => t.id === input.id);
+      if (!todoExists) {
+        throw new Error("Task not found or already deleted");
+      }
+
       const initialLength = todos.length;
       todos = todos.filter((t) => t.id !== input.id);
+
       return { success: todos.length < initialLength };
     }),
 });
