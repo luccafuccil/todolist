@@ -1,6 +1,6 @@
 # To-do List with tRPC & Next.js
 
-A simple yet complete task management system built in two days as part of a technical challenge.
+A complete task management system built in two days as part of a technical challenge.
 
 ![Next.js](https://img.shields.io/badge/Next.js-15-black?style=for-the-badge&logo=next.js)
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
@@ -9,12 +9,14 @@ A simple yet complete task management system built in two days as part of a tech
 
 ## Features
 
-- **Create tasks** with title and optional description
+- **Create and edit tasks** with title and optional description
 - **List all tasks** in an organized way (newest first)
-- **Edit existing tasks** when you change your mind
 - **Mark as completed** with a simple checkbox click
-- **Delete tasks** with an added "undo" option
+- **Safe deletion** of individual tasks or of completed ones in bulk
+- **Responsive design** optimized for desktop and mobile
+- **Automatic infinite scroll** pagination
 - **See timestamps** for when each task was created and last edited
+- **Smart sorting** with to-do tasks first and completed tasks last
 
 ## Tech Stack
 
@@ -46,7 +48,7 @@ npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) in your browser 🎉
+Open [http://localhost:3000](http://localhost:3000) in your browser
 
 ## Architecture Overview
 
@@ -56,7 +58,7 @@ The entire backend lives in memory (yes, when you restart the server, everything
 ```typescript
 // Each task looks like this:
 type Todo = {
-  id: number;           // Unique auto-generated ID
+  id: number;           // Unique auto-generated ID (creation order based)
   name: string;         // Task title (required)
   description?: string; // Optional description
   completed: boolean;   // Whether it's marked as done
@@ -73,10 +75,10 @@ type Todo = {
 ### Special Features
 
 **Server-Side Rendering (SSR)**  
-The task list is pre-loaded on the server, so you see tasks instantly when the page loads.
+Initial task list is pre-rendered on the server for instant loading and better SEO.
 
-**Undo Functionality**  
-Deleted a task by mistake? A modal appears asking if you're sure, with an undo option.
+**Infinite Pagination**  
+Tasks load in batches of 5 using cursor-based pagination. Scroll to automatically fetch more.
 
 **Smart Validations**  
 - Can't create two tasks with the same name
@@ -87,17 +89,21 @@ Deleted a task by mistake? A modal appears asking if you're sure, with an undo o
 
 ```
 src/
-├── app/                 # Next.js App Router
-│   ├── add-new/        # Create task page
-│   ├── edit/           # Edit task page
-│   └── api/trpc/       # tRPC endpoint
-├── components/         # Reusable React components
-├── server/            # Backend logic (tRPC)
-│   └── routers/       # API routes
-├── types/             # TypeScript type definitions
-└── utils/             # Utilities (tRPC client)
+├── app/                    # Next.js App Router
+│   ├── add-new/           # Task creation page
+│   ├── edit/              # Task editing page
+│   ├── api/trpc/          # API endpoints
+│   └── globals.css        # Global styles
+├── components/            # React components
+│   ├── delete-modal.tsx   # Confirmation dialogs
+│   ├── individual-todo.tsx # Task item component
+│   ├── new-todo-form.tsx  # Task form component
+│   └── todo-list-manage.tsx # Main list component
+├── server/                # Backend logic
+│   └── routers/           # tRPC route definitions
+├── types/                 # TypeScript definitions
+└── utils/                 # Utility functions
 ```
-
 ---
 
 *Made with ☕ and lots of TypeScript from Floripa, Brazil 🇧🇷*
