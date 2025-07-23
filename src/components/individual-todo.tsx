@@ -59,7 +59,7 @@ export function IndividualTodo({ todo, onUpdate }: IndividualTodoProps) {
 
   return (
     <>
-      <li className="mb-3 p-3 shadow-md rounded-lg h-32 bg-white">
+      <li className="mb-3 p-3 shadow-md rounded-lg h-fit bg-white">
         <div className="flex items-center h-full">
           <input
             type="checkbox"
@@ -109,7 +109,7 @@ export function IndividualTodo({ todo, onUpdate }: IndividualTodoProps) {
             </div>
           </div>
 
-          <div className="flex gap-2 mr-8">
+          <div className="task-actions">
             <button onClick={handleEditClick} className="main-btn text-sm">
               Edit
             </button>

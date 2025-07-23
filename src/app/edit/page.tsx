@@ -3,7 +3,6 @@
 import NewTodoForm from "@/components/new-todo-form";
 import { trpc } from "@/utils/trpc";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
 
 export default function EditTodoPage() {
   const router = useRouter();
@@ -11,20 +10,22 @@ export default function EditTodoPage() {
   const utils = trpc.useUtils();
 
   const todoId = searchParams.get("id");
-  const [initialData, setInitialData] = useState<
-    | {
-        name: string;
-        description: string;
-      }
-    | undefined
-  >(undefined);
+  const todoIdNumber = todoId ? parseInt(todoId) : null;
 
-  const { data: todos } = trpc.todo.getAll.useQuery();
+  const {
+    data: todo,
+    isLoading,
+    error,
+  } = trpc.todo.getById.useQuery(
+    { id: todoIdNumber! },
+    { enabled: !!todoIdNumber }
+  );
 
   const editTodo = trpc.todo.edit.useMutation({
     onSuccess: () => {
       try {
         utils.todo.getAll.invalidate();
+        utils.todo.getById.invalidate();
         router.push("/");
       } catch (error) {
         console.error("Error:", error);
@@ -35,29 +36,10 @@ export default function EditTodoPage() {
     },
   });
 
-  useEffect(() => {
-    try {
-      if (todos && todoId) {
-        const todo = todos.find((t) => t.id === parseInt(todoId));
-        if (todo) {
-          setInitialData({
-            name: todo.name,
-            description: todo.description || "",
-          });
-        } else {
-          router.push("/");
-        }
-      }
-    } catch (error) {
-      console.error("Error loading task data:", error);
-      router.push("/");
-    }
-  }, [todos, todoId]);
-
   const handleEditSubmit = (data: { name: string; description: string }) => {
-    if (todoId) {
+    if (todoIdNumber) {
       editTodo.mutate({
-        id: parseInt(todoId),
+        id: todoIdNumber,
         name: data.name,
         description: data.description,
       });
@@ -78,6 +60,20 @@ export default function EditTodoPage() {
     );
   }
 
+  if (error) {
+    return (
+      <div className="m-4 bg-white p-6 rounded-xl shadow-md">
+        <h1 className="text-red-600">Error: Task not found</h1>
+        <button
+          className="mt-4 text-gray-500 underline hover:text-gray-700"
+          onClick={() => router.push("/")}
+        >
+          ← Back to To-do List
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="m-6">
       <button
@@ -88,15 +84,18 @@ export default function EditTodoPage() {
       </button>
       <h1 className="main-title">Edit Task</h1>
 
-      {initialData ? (
+      {isLoading ? (
+        <p>Loading task data...</p>
+      ) : todo ? (
         <NewTodoForm
           onSubmit={handleEditSubmit}
-          initialData={initialData}
+          initialData={{
+            name: todo.name,
+            description: todo.description || "",
+          }}
           submitText="Update Task"
         />
-      ) : (
-        <p>Loading task data...</p>
-      )}
+      ) : null}
 
       {editTodo.isPending && (
         <p className="text-blue-600 mt-2">Updating task...</p>

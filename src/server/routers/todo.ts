@@ -36,13 +36,65 @@ let todos: Todo[] = [
 ];
 
 export const todoRouter = router({
-  getAll: publicProcedure.query(() => {
-    return todos.map((todo) => ({
-      ...todo,
-      createdAt: todo.createdAt.toISOString(),
-      updatedAt: todo.updatedAt?.toISOString(),
-    }));
-  }),
+  getById: publicProcedure
+    .input(z.object({ id: z.number() }))
+    .query(({ input }) => {
+      const todo = todos.find((t) => t.id === input.id);
+
+      if (!todo) {
+        throw new Error("Task not found");
+      }
+
+      return {
+        ...todo,
+        createdAt: todo.createdAt.toISOString(),
+        updatedAt: todo.updatedAt?.toISOString(),
+      };
+    }),
+
+  getAll: publicProcedure
+    .input(
+      z
+        .object({
+          cursor: z.number().optional(),
+          limit: z.number().min(1).max(50).default(5),
+        })
+        .optional()
+    )
+    .query(({ input }) => {
+      const { cursor, limit = 5 } = input || {};
+
+      const sortedTodos = [...todos].sort((a, b) => {
+        if (a.completed !== b.completed) {
+          return a.completed ? 1 : -1;
+        }
+        return b.id - a.id;
+      });
+
+      let items = sortedTodos;
+
+      if (cursor) {
+        const cursorIndex = sortedTodos.findIndex((todo) => todo.id === cursor);
+        items = sortedTodos.slice(cursorIndex + 1);
+      }
+
+      const paginatedItems = items.slice(0, limit);
+
+      const nextCursor =
+        paginatedItems.length === limit
+          ? paginatedItems[paginatedItems.length - 1].id
+          : undefined;
+
+      return {
+        items: paginatedItems.map((todo) => ({
+          ...todo,
+          createdAt: todo.createdAt.toISOString(),
+          updatedAt: todo.updatedAt?.toISOString(),
+        })),
+        nextCursor,
+        hasMore: !!nextCursor,
+      };
+    }),
 
   create: publicProcedure
     .input(
@@ -131,20 +183,21 @@ export const todoRouter = router({
     .input(z.object({ id: z.number() }))
     .mutation(({ input }) => {
       const todoIndex = todos.findIndex((t) => t.id === input.id);
-      const todo = todos[todoIndex];
 
-      todo.completed = !todo.completed;
-
-      if (todo.completed) {
-        todos.splice(todoIndex, 1);
-        todos.unshift(todo);
-      } else {
-        todos.splice(todoIndex, 1);
-        todos.push(todo);
+      if (todoIndex === -1) {
+        throw new Error("Task not found");
       }
 
+      const todo = todos[todoIndex];
+      todo.completed = !todo.completed;
+      todo.updatedAt = new Date();
+
       return {
-        todo,
+        todo: {
+          ...todo,
+          createdAt: todo.createdAt.toISOString(),
+          updatedAt: todo.updatedAt?.toISOString(),
+        },
       };
     }),
 

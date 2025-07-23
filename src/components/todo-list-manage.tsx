@@ -5,7 +5,7 @@ import { IndividualTodo } from "./individual-todo";
 import { useRouter } from "next/navigation";
 import { type Todo } from "@/types";
 import { DeleteModal } from "./delete-modal";
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 
 interface TodoListProps {
   initialTodos: Todo[];
@@ -16,13 +16,38 @@ export function TodoList({ initialTodos }: TodoListProps) {
   const utils = trpc.useUtils();
   const [showClearModal, setShowClearModal] = useState(false);
 
-  const { data: todos, error } = trpc.todo.getAll.useQuery(undefined, {
-    initialData: initialTodos,
-    staleTime: 0,
-    refetchOnMount: true,
-    refetchOnWindowFocus: false,
-    refetchOnReconnect: true,
-  });
+  const { data, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    trpc.todo.getAll.useInfiniteQuery(
+      { limit: 10 },
+      {
+        getNextPageParam: (lastPage) => lastPage.nextCursor,
+        initialData: {
+          pages: [
+            { items: initialTodos, nextCursor: undefined, hasMore: false },
+          ],
+          pageParams: [undefined],
+        },
+      }
+    );
+
+  const todos = data?.pages.flatMap((page) => page.items) ?? [];
+
+  const observerRef = useRef<IntersectionObserver | null>(null);
+  const lastTodoRef = useCallback(
+    (node: HTMLDivElement | null) => {
+      if (isFetchingNextPage) return;
+      if (observerRef.current) observerRef.current.disconnect();
+
+      observerRef.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasNextPage) {
+          fetchNextPage();
+        }
+      });
+
+      if (node) observerRef.current.observe(node);
+    },
+    [isFetchingNextPage, hasNextPage, fetchNextPage]
+  );
 
   const clearCompleted = trpc.todo.clearCompleted.useMutation({
     onSuccess: (result) => {
@@ -78,7 +103,7 @@ export function TodoList({ initialTodos }: TodoListProps) {
   return (
     <>
       <div className="m-6">
-        <div className="flex gap-10 items-center mb-4">
+        <div className="header">
           <h1 className="main-title">Task List</h1>
 
           <button
@@ -88,8 +113,7 @@ export function TodoList({ initialTodos }: TodoListProps) {
             Add new task
           </button>
           <button
-            className="hover:underline"
-            style={{ color: "var(--color-accent-dark)" }}
+            className="clear-btn mb-4"
             onClick={handleClearCompleted}
             disabled={clearCompleted.isPending || completedCount === 0}
           >
@@ -97,14 +121,29 @@ export function TodoList({ initialTodos }: TodoListProps) {
           </button>
         </div>
         <ul>
-          {[...(todos ?? [])].reverse().map((todo) => (
-            <IndividualTodo
+          {todos.map((todo, index) => (
+            <div
               key={todo.id}
-              todo={todo}
-              onUpdate={invalidateTodos}
-            />
+              ref={index === todos.length - 1 ? lastTodoRef : null}
+            >
+              <IndividualTodo todo={todo} onUpdate={invalidateTodos} />
+            </div>
           ))}
         </ul>
+
+        {isFetchingNextPage && (
+          <div className="flex justify-center mt-4">
+            <p className="text-gray-500">Loading more tasks...</p>
+          </div>
+        )}
+
+        {hasNextPage && !isFetchingNextPage && (
+          <div className="flex justify-center mt-4">
+            <button className="main-btn" onClick={() => fetchNextPage()}>
+              Load More
+            </button>
+          </div>
+        )}
 
         {todos?.length === 0 && <p className="text-gray-500">No tasks yet.</p>}
       </div>

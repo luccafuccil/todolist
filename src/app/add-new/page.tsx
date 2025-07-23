@@ -46,6 +46,8 @@ export default function AddNewPage() {
       </button>
       <h1 className="main-title">Add New Task</h1>
 
+      <NewTodoForm onSubmit={handleFormSubmit} />
+
       {createTodo.isPending && (
         <p className="text-gray-600 mt-4">Creating task...</p>
       )}
@@ -53,8 +55,6 @@ export default function AddNewPage() {
       {createTodo.error && (
         <p className="text-red-600 mt-2">Error: {createTodo.error.message}</p>
       )}
-
-      <NewTodoForm onSubmit={handleFormSubmit} />
     </div>
   );
 }

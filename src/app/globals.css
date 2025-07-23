@@ -1,11 +1,11 @@
 @import "tailwindcss";
 
 :root {
-  --color-primary: #606c38;
-  --color-primary-dark: #283618;
-  --color-background: #fefae0;
-  --color-accent: #dda15e;
-  --color-accent-dark: #bc6c25;
+  --color-primary: #3e5c76;
+  --color-primary-dark: #0d1321;
+  --color-background: #f0ebd8;
+  --color-accent: #748cab;
+  --color-accent-dark: #1d2d44;
 }
 
 body {
@@ -14,6 +14,10 @@ body {
 
 button {
   cursor: pointer;
+}
+
+.header {
+  @apply flex gap-10 items-center mb-4;
 }
 
 .main-btn {
@@ -27,6 +31,10 @@ button {
   &:active {
     background-color: var(--color-primary-dark);
   }
+}
+
+.task-actions {
+  @apply flex gap-2 mr-8;
 }
 
 .delete-btn {
@@ -46,6 +54,22 @@ button {
   }
 }
 
+.clear-btn {
+  @apply font-semibold text-sm;
+  color: var(--color-primary);
+  transition: color 0.3s ease;
+
+  &:hover {
+    color: var(--color-primary-dark);
+    text-decoration: underline;
+  }
+  &:disabled {
+    color: gray;
+    cursor: not-allowed;
+    text-decoration: none;
+  }
+}
+
 .main-title {
   @apply font-sans font-bold text-3xl mb-4 text-black;
 }
@@ -58,5 +82,28 @@ input[type="text"] {
 
 input:focus {
   outline: none;
-  border: 1px solid var(--color-accent-dark);
+  border: 1px solid var(--color-primary-dark);
+}
+
+@media (max-width: 640px) {
+  body {
+    padding: 0 4px;
+  }
+  .header {
+    @apply flex-col gap-1 items-start mb-4;
+  }
+  .main-title {
+    @apply text-2xl mb-2;
+  }
+
+  .task-actions {
+    @apply flex-col gap-2 items-end mr-0.5;
+  }
+  .main-btn,
+  .delete-btn {
+    @apply w-full py-2 px-4;
+  }
+  .clear-btn {
+    @apply w-full mb-4 underline;
+  }
 }
