@@ -17,7 +17,7 @@ export function DeleteModal({
 
   return (
     <div className="delete-modal">
-      <div className="bg-white rounded-lg shadow-lg p-6 min-w-[300px] text-center">
+      <div className="bg-white p-6 rounded-lg shadow-xl max-w-md mx-4">
         <h3 className="text-xl font-semibold text-gray-900 mb-4">{title}</h3>
         <div className="flex gap-3 justify-center">
           <button onClick={onCancel} className="main-btn text-sm">

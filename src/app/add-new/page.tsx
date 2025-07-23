@@ -22,18 +22,11 @@ export default function AddNewPage() {
     },
   });
 
-  const handleFormSubmit = async (data: {
-    name: string;
-    description: string;
-  }) => {
-    try {
-      await createTodo.mutateAsync({
-        name: data.name,
-        description: data.description,
-      });
-    } catch (error) {
-      console.error("Error:", error);
-    }
+  const handleFormSubmit = (data: { name: string; description: string }) => {
+    createTodo.mutate({
+      name: data.name,
+      description: data.description,
+    });
   };
 
   return (
