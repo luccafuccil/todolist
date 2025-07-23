@@ -20,18 +20,12 @@ export function DeleteModal({
       <div className="bg-white rounded-lg shadow-lg p-6 min-w-[300px] text-center">
         <h3 className="text-xl font-semibold text-gray-900 mb-4">{title}</h3>
         <div className="flex gap-3 justify-center">
-          <button
-            onClick={onClose}
-            className="px-6 py-2 bg-red-600 text-white rounded hover:bg-red-700 transition-colors duration-200"
-          >
-            Proceed
+          <button onClick={onClose} className="delete-btn text-sm">
+            Delete
           </button>
           {onUndo && (
-            <button
-              onClick={onUndo}
-              className="px-6 py-2 bg-gray-600 text-white rounded hover:bg-gray-700 transition-colors duration-200"
-            >
-              Undo
+            <button onClick={onUndo} className="main-btn text-sm">
+              Cancel
             </button>
           )}
         </div>

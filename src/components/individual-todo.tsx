@@ -59,18 +59,19 @@ export function IndividualTodo({ todo, onUpdate }: IndividualTodoProps) {
 
   return (
     <>
-      <li className="mb-3 p-3 border rounded-lg">
-        <div className="flex items-center">
+      <li className="mb-3 p-3 shadow-md rounded-lg h-32 bg-white">
+        <div className="flex items-center h-full">
           <input
             type="checkbox"
             checked={todo.completed}
             onChange={() => toggleTodo.mutate({ id: todo.id })}
-            className="mr-3"
+            className="mr-3 cursor-pointer"
           />
-          <div className="flex-1">
+          <div className="flex flex-col justify-evenly flex-1 h-full ml-2">
             <span
               style={{
                 textDecoration: todo.completed ? "line-through" : "none",
+                color: todo.completed ? "#9ca3af" : "#1f2937",
               }}
               className="font-medium text-xl text-gray-800 block"
             >
@@ -108,17 +109,14 @@ export function IndividualTodo({ todo, onUpdate }: IndividualTodoProps) {
             </div>
           </div>
 
-          <div className="flex gap-2">
-            <button
-              onClick={handleEditClick}
-              className="text-blue-600 hover:text-blue-800 underline text-sm"
-            >
+          <div className="flex gap-2 mr-8">
+            <button onClick={handleEditClick} className="main-btn text-sm">
               Edit
             </button>
             <button
               onClick={() => deleteTodo.mutate({ id: todo.id })}
               disabled={deleteTodo.isPending}
-              className="text-red-600 hover:text-red-800 disabled:opacity-50 underline text-sm"
+              className="delete-btn text-sm"
             >
               Delete
             </button>

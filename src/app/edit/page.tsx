@@ -79,21 +79,24 @@ export default function EditTodoPage() {
   }
 
   return (
-    <div className="m-4 bg-white p-6 rounded-xl shadow-md">
-      <h1 className="text-2xl font-bold mb-4">Edit Todo</h1>
-
-      {initialData ? (
-        <NewTodoForm onSubmit={handleEditSubmit} initialData={initialData} />
-      ) : (
-        <p>Loading task data...</p>
-      )}
-
+    <div className="m-6">
       <button
-        className="mt-4 text-gray-500 underline hover:text-gray-700"
+        className="mb-4 text-gray-500 underline hover:text-gray-700"
         onClick={() => router.push("/")}
       >
         ← Back to To-do List
       </button>
+      <h1 className="main-title">Edit Task</h1>
+
+      {initialData ? (
+        <NewTodoForm
+          onSubmit={handleEditSubmit}
+          initialData={initialData}
+          submitText="Update Task"
+        />
+      ) : (
+        <p>Loading task data...</p>
+      )}
 
       {editTodo.isPending && (
         <p className="text-blue-600 mt-2">Updating task...</p>

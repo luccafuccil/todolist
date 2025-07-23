@@ -3,13 +3,19 @@ import React, { useState, useEffect } from "react";
 interface NewTodoFormProps {
   onSubmit: (data: { name: string; description: string }) => void;
   initialData?: { name: string; description: string };
+  submitText?: string;
 }
 
-const NewTodoForm: React.FC<NewTodoFormProps> = ({ onSubmit, initialData }) => {
+const NewTodoForm: React.FC<NewTodoFormProps> = ({
+  onSubmit,
+  initialData,
+  submitText,
+}) => {
   const [name, setName] = useState(initialData?.name || "");
   const [description, setDescription] = useState(
     initialData?.description || ""
   );
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -30,19 +36,20 @@ const NewTodoForm: React.FC<NewTodoFormProps> = ({ onSubmit, initialData }) => {
 
   return (
     <form onSubmit={handleSubmit}>
-      <div>
-        <label>
-          Name:
+      <div className="mb-4">
+        <label className="block mb-2 text-lg font-medium text-black">
+          Task name:
           <input
             type="text"
             value={name}
             onChange={(e) => setName(e.target.value)}
             required
+            maxLength={50}
           />
         </label>
       </div>
-      <div>
-        <label>
+      <div className="mb-4">
+        <label className="block mb-2 text-lg font-medium text-black">
           Description:
           <input
             type="text"
@@ -51,8 +58,8 @@ const NewTodoForm: React.FC<NewTodoFormProps> = ({ onSubmit, initialData }) => {
           />
         </label>
       </div>
-      <button type="submit" className="main-btn">
-        Add Task
+      <button type="submit" className="main-btn" disabled={isSubmitting}>
+        {submitText || "Add Task"}
       </button>
     </form>
   );

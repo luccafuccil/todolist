@@ -130,18 +130,22 @@ export const todoRouter = router({
   toggle: publicProcedure
     .input(z.object({ id: z.number() }))
     .mutation(({ input }) => {
-      const todo = todos.find((t) => t.id === input.id);
-      if (todo) {
-        todo.completed = !todo.completed;
-        todo.updatedAt = new Date();
+      const todoIndex = todos.findIndex((t) => t.id === input.id);
+      const todo = todos[todoIndex];
 
-        return {
-          ...todo,
-          createdAt: todo.createdAt.toISOString(),
-          updatedAt: todo.updatedAt?.toISOString(),
-        };
+      todo.completed = !todo.completed;
+
+      if (todo.completed) {
+        todos.splice(todoIndex, 1);
+        todos.unshift(todo);
+      } else {
+        todos.splice(todoIndex, 1);
+        todos.push(todo);
       }
-      return null;
+
+      return {
+        todo,
+      };
     }),
 
   delete: publicProcedure
@@ -157,4 +161,17 @@ export const todoRouter = router({
 
       return { success: todos.length < initialLength };
     }),
+
+  clearCompleted: publicProcedure.mutation(() => {
+    const initialLength = todos.length;
+    const completedCount = todos.filter((t) => t.completed).length;
+
+    todos = todos.filter((t) => !t.completed);
+
+    return {
+      success: true,
+      deletedCount: completedCount,
+      remainingCount: todos.length,
+    };
+  }),
 });

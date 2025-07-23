@@ -1,17 +1,62 @@
 @import "tailwindcss";
 
+:root {
+  --color-primary: #606c38;
+  --color-primary-dark: #283618;
+  --color-background: #fefae0;
+  --color-accent: #dda15e;
+  --color-accent-dark: #bc6c25;
+}
+
+body {
+  background-color: var(--color-background);
+}
+
 button {
   cursor: pointer;
 }
 
 .main-btn {
-  @apply bg-blue-400 text-white font-bold py-2 px-4 rounded-xl;
+  @apply text-white font-semibold py-1 px-2 rounded;
+  background-color: var(--color-primary);
   transition: background-color 0.3s ease;
 
   &:hover {
-    @apply bg-blue-600;
+    background-color: var(--color-primary-dark);
   }
   &:active {
-    @apply bg-blue-800;
+    background-color: var(--color-primary-dark);
   }
+}
+
+.delete-btn {
+  @apply font-semibold py-1 px-2 rounded;
+  background-color: white;
+  color: var(--color-accent);
+  border: var(--color-accent) 2px solid;
+  transition: background-color 0.3s ease;
+
+  &:hover {
+    background-color: var(--color-accent);
+    color: white;
+  }
+  &:active {
+    background-color: var(--color-accent-dark);
+    color: white;
+  }
+}
+
+.main-title {
+  @apply font-sans font-bold text-3xl mb-4 text-black;
+}
+
+input[type="text"] {
+  @apply block w-full p-2;
+  border: 1px solid var(--color-primary);
+  border-radius: 8px;
+}
+
+input:focus {
+  outline: none;
+  border: 1px solid var(--color-accent-dark);
 }
