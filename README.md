@@ -1,4 +1,4 @@
-# 📝 To-do List with tRPC & Next.js
+# To-do List with tRPC & Next.js
 
 A simple yet complete task management system built in two days as part of a technical challenge.
 
@@ -7,7 +7,7 @@ A simple yet complete task management system built in two days as part of a tech
 ![tRPC](https://img.shields.io/badge/tRPC-2596BE?style=for-the-badge&logo=trpc&logoColor=white)
 ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)
 
-## ✨ Features
+## Features
 
 - **Create tasks** with title and optional description
 - **List all tasks** in an organized way (newest first)
@@ -16,7 +16,7 @@ A simple yet complete task management system built in two days as part of a tech
 - **Delete tasks** with an added "undo" option
 - **See timestamps** for when each task was created and last edited
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Next.js 15** - React framework with SSR
 - **tRPC**
@@ -24,7 +24,7 @@ A simple yet complete task management system built in two days as part of a tech
 - **Tailwind CSS** - For straightforward, easy to maintain CSS
 - **Zod** - For validation
 
-## 🚀 Getting Started
+## Getting Started
 
 ### Prerequisites
 - Node.js (version 18 or higher)
@@ -48,7 +48,7 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000) in your browser 🎉
 
-## 🏗️ Architecture Overview
+## Architecture Overview
 
 ### Backend (tRPC)
 The entire backend lives in memory (yes, when you restart the server, everything disappears - it was a challenge requirement). The structure is pretty straightforward:
@@ -72,18 +72,18 @@ type Todo = {
 
 ### Special Features
 
-**🔄 Server-Side Rendering (SSR)**  
+**Server-Side Rendering (SSR)**  
 The task list is pre-loaded on the server, so you see tasks instantly when the page loads.
 
-**↩️ Undo Functionality**  
+**Undo Functionality**  
 Deleted a task by mistake? A modal appears asking if you're sure, with an undo option.
 
-**✅ Smart Validations**  
+**Smart Validations**  
 - Can't create two tasks with the same name
 - Title can't be empty or just spaces
 - 1000 task limit (just in case)
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 src/
