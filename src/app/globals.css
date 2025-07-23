@@ -37,6 +37,10 @@ button {
   @apply flex gap-2 mr-8;
 }
 
+.delete-modal {
+  @apply fixed inset-0 flex h-fit items-center justify-center z-50;
+}
+
 .delete-btn {
   @apply font-semibold py-1 px-2 rounded;
   background-color: white;
@@ -90,7 +94,7 @@ input:focus {
     padding: 0 4px;
   }
   .header {
-    @apply flex-col gap-1 items-start mb-4;
+    @apply flex-col gap-1 items-center mb-4;
   }
   .main-title {
     @apply text-2xl mb-2;
@@ -105,5 +109,8 @@ input:focus {
   }
   .clear-btn {
     @apply w-full mb-4 underline;
+  }
+  .delete-modal {
+    @apply top-10 left-0 right-0 mx-auto w-11/12 max-w-md;
   }
 }

@@ -11,10 +11,19 @@ interface IndividualTodoProps {
   onUpdate: () => void;
 }
 
+const formatDate = (date: string) => {
+  return new Intl.DateTimeFormat("en", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(date));
+};
+
 export function IndividualTodo({ todo, onUpdate }: IndividualTodoProps) {
   const router = useRouter();
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [deletedTodo, setDeletedTodo] = useState<Todo | null>(null);
 
   const toggleTodo = trpc.todo.toggle.useMutation({
     onSuccess: onUpdate,
@@ -22,35 +31,21 @@ export function IndividualTodo({ todo, onUpdate }: IndividualTodoProps) {
 
   const deleteTodo = trpc.todo.delete.useMutation({
     onSuccess: () => {
-      setDeletedTodo(todo);
-      setShowDeleteModal(true);
+      onUpdate();
+      setShowDeleteModal(false);
     },
   });
 
-  const createTodo = trpc.todo.create.useMutation({
-    onSuccess: onUpdate,
-  });
-
-  const handleDeleteModalClose = () => {
-    setShowDeleteModal(false);
-    setDeletedTodo(null);
-    onUpdate();
+  const handleDeleteClick = () => {
+    setShowDeleteModal(true);
   };
 
-  const handleUndoDelete = async () => {
-    try {
-      if (deletedTodo) {
-        await createTodo.mutateAsync({
-          name: deletedTodo.name,
-          description: deletedTodo.description || undefined,
-        });
-        setShowDeleteModal(false);
-        setDeletedTodo(null);
-      }
-    } catch (error) {
-      console.error("Cannot undo delete:", error);
-      setShowDeleteModal(true);
-    }
+  const handleDeleteCancel = () => {
+    setShowDeleteModal(false);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteTodo.mutate({ id: todo.id });
   };
 
   const handleEditClick = () => {
@@ -85,25 +80,10 @@ export function IndividualTodo({ todo, onUpdate }: IndividualTodoProps) {
             )}
 
             <div className="text-gray-500 text-xs mt-1">
-              <span>
-                {new Intl.DateTimeFormat("en", {
-                  day: "2-digit",
-                  month: "2-digit",
-                  year: "numeric",
-                  hour: "2-digit",
-                  minute: "2-digit",
-                }).format(new Date(todo.createdAt))}
-              </span>
+              <span>Created: {formatDate(todo.createdAt)}</span>
               {todo.updatedAt && (
                 <span className="ml-2">
-                  Last Edit:{" "}
-                  {new Intl.DateTimeFormat("en", {
-                    day: "2-digit",
-                    month: "2-digit",
-                    year: "numeric",
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  }).format(new Date(todo.updatedAt))}
+                  Last Edit: {formatDate(todo.updatedAt)}
                 </span>
               )}
             </div>
@@ -114,20 +94,21 @@ export function IndividualTodo({ todo, onUpdate }: IndividualTodoProps) {
               Edit
             </button>
             <button
-              onClick={() => deleteTodo.mutate({ id: todo.id })}
+              onClick={handleDeleteClick}
               disabled={deleteTodo.isPending}
               className="delete-btn text-sm"
             >
-              Delete
+              {deleteTodo.isPending ? "Deleting..." : "Delete"}
             </button>
           </div>
         </div>
       </li>
+
       <DeleteModal
         open={showDeleteModal}
-        onClose={handleDeleteModalClose}
-        onUndo={handleUndoDelete}
-        title="Task will be deleted."
+        onConfirm={handleConfirmDelete}
+        onCancel={handleDeleteCancel}
+        title="Are you sure you want to delete this task?"
       />
     </>
   );

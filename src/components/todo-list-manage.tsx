@@ -137,21 +137,13 @@ export function TodoList({ initialTodos }: TodoListProps) {
           </div>
         )}
 
-        {hasNextPage && !isFetchingNextPage && (
-          <div className="flex justify-center mt-4">
-            <button className="main-btn" onClick={() => fetchNextPage()}>
-              Load More
-            </button>
-          </div>
-        )}
-
         {todos?.length === 0 && <p className="text-gray-500">No tasks yet.</p>}
       </div>
 
       <DeleteModal
         open={showClearModal}
-        onClose={handleConfirmClear}
-        onUndo={handleCloseModal}
+        onConfirm={handleConfirmClear}
+        onCancel={handleCloseModal}
         title={`Delete ${completedCount} completed task${
           completedCount === 1 ? "" : "s"
         }?`}

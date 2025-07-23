@@ -15,7 +15,6 @@ const NewTodoForm: React.FC<NewTodoFormProps> = ({
   const [description, setDescription] = useState(
     initialData?.description || ""
   );
-  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (initialData) {
@@ -58,7 +57,7 @@ const NewTodoForm: React.FC<NewTodoFormProps> = ({
           />
         </label>
       </div>
-      <button type="submit" className="main-btn" disabled={isSubmitting}>
+      <button type="submit" className="main-btn">
         {submitText || "Add Task"}
       </button>
     </form>

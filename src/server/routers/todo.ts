@@ -190,14 +190,9 @@ export const todoRouter = router({
 
       const todo = todos[todoIndex];
       todo.completed = !todo.completed;
-      todo.updatedAt = new Date();
 
       return {
-        todo: {
-          ...todo,
-          createdAt: todo.createdAt.toISOString(),
-          updatedAt: todo.updatedAt?.toISOString(),
-        },
+        todo,
       };
     }),
 

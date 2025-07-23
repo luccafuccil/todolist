@@ -25,14 +25,10 @@ export default function EditTodoPage() {
     onSuccess: () => {
       try {
         utils.todo.getAll.invalidate();
-        utils.todo.getById.invalidate();
         router.push("/");
       } catch (error) {
         console.error("Error:", error);
       }
-    },
-    onError: (error) => {
-      console.error("Task edit failed:", error.message);
     },
   });
 
@@ -46,24 +42,12 @@ export default function EditTodoPage() {
     }
   };
 
-  if (!todoId) {
+  if (!todoId || error) {
     return (
       <div className="m-4 bg-white p-6 rounded-xl shadow-md">
-        <h1 className="text-red-600">Error: No task ID provided</h1>
-        <button
-          className="mt-4 text-gray-500 underline hover:text-gray-700"
-          onClick={() => router.push("/")}
-        >
-          ← Back to To-do List
-        </button>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="m-4 bg-white p-6 rounded-xl shadow-md">
-        <h1 className="text-red-600">Error: Task not found</h1>
+        <h1 className="text-red-600">
+          {!todoId ? "Error: No task ID provided" : "Error: Task not found"}
+        </h1>
         <button
           className="mt-4 text-gray-500 underline hover:text-gray-700"
           onClick={() => router.push("/")}
